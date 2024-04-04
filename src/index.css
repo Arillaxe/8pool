@@ -1,0 +1,9 @@
+:root {
+  background-color: #242424;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
