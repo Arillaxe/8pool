@@ -1,3 +1,5 @@
+import { Vector } from "./vector";
+
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
@@ -41,4 +43,12 @@ export function shuffleArray<T>(array: T[]) {
     [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
   }
   return shuffledArray;
+}
+
+export function clampVectorByLength(vector: Vector, min: number, max: number) {
+  const length = vector.length();
+  const clampedLength = clamp(length, min, max);
+  const scaleFactor = clampedLength / length;
+
+  return new Vector(vector.x * scaleFactor, vector.y * scaleFactor);
 }

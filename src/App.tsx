@@ -6,15 +6,18 @@ function App() {
   const gameRef = useRef<Game>();
 
   const mouseDownCallback = useCallback((e: MouseEvent) => {
-    gameRef.current?.mouseStartCallback(e.clientX, e.clientY);
+    const rect = canvasRef.current!.getBoundingClientRect();
+    gameRef.current?.mouseStartCallback(e.clientX - rect.x, e.clientY - rect.y);
   }, []);
 
   const mouseMoveCallback = useCallback((e: MouseEvent) => {
-    gameRef.current?.mouseMoveCallback(e.clientX, e.clientY);
+    const rect = canvasRef.current!.getBoundingClientRect();
+    gameRef.current?.mouseMoveCallback(e.clientX - rect.x, e.clientY - rect.y);
   }, []);
 
   const mouseUpCallback = useCallback((e: MouseEvent) => {
-    gameRef.current?.mouseEndCallback(e.clientX, e.clientY);
+    const rect = canvasRef.current!.getBoundingClientRect();
+    gameRef.current?.mouseEndCallback(e.clientX - rect.x, e.clientY - rect.y);
   }, []);
 
   useEffect(() => {

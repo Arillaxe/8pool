@@ -3,6 +3,7 @@ import {
   BALL_RADIUS,
   HEIGHT,
   IMPULSE_VECTOR_OFFSET,
+  MAX_IMPULSE,
   OUTLINE_COLOR,
   PADDING,
   WIDTH,
@@ -79,7 +80,7 @@ export class Renderer {
     this.ctx.arc(
       startVector.x,
       startVector.y,
-      impulseVector.length(),
+      Math.min(impulseVector.length(), MAX_IMPULSE),
       0,
       2 * Math.PI
     );

@@ -3,11 +3,13 @@ import {
   BALL_RADIUS,
   FRICTION,
   HEIGHT,
+  IMPULSE_VECTOR_OFFSET,
   IMPUSLE_MULTIPLIER,
+  MAX_IMPULSE,
   PADDING,
   WIDTH,
 } from "./consts";
-import { clamp } from "./utils";
+import { clamp, clampVectorByLength } from "./utils";
 import { Vector } from "./vector";
 
 export function physTick(deltaTime: number, balls: Ball[]) {
@@ -51,37 +53,42 @@ export function physTick(deltaTime: number, balls: Ball[]) {
 }
 
 function resolveBallCollision(ball1: Ball, ball2: Ball): void {
-  // Calculate the distance between the centers of the circles
   const distanceVector = ball2.pos.subtract(ball1.pos);
   const distance = distanceVector.length();
 
-  // Check if the circles are colliding
   if (distance <= 2 * BALL_RADIUS) {
-    // Calculate the penetration depth
-
-    // Calculate the collision normal
     const collisionNormal = distanceVector.normalize();
-
-    // Move circles away from each other to resolve the collision
     const moveVector = collisionNormal;
+
     ball1.pos = ball1.pos.subtract(moveVector);
     ball2.pos = ball2.pos.add(moveVector);
 
-    // Calculate relative velocity
     const relativeVelocity = ball2.vel.subtract(ball1.vel);
 
-    // Calculate impulse
     const impulse = relativeVelocity.dotProduct(collisionNormal);
 
-    // Calculate adjusted velocities
     const velocityChange1 = collisionNormal.multiply(impulse);
     const velocityChange2 = collisionNormal.multiply(-impulse);
-    // Update velocities
+
     ball1.vel = ball1.vel.add(velocityChange1);
     ball2.vel = ball2.vel.add(velocityChange2);
   }
 }
 
 export function applyImpulse(ball: Ball, impusle: Vector) {
-  ball.vel = ball.vel.add(impusle.multiply(IMPUSLE_MULTIPLIER));
+  if (impusle.length() < IMPULSE_VECTOR_OFFSET) return;
+
+  const clampedVel = clampVectorByLength(impusle, 0, MAX_IMPULSE);
+
+  const lengthWithOffset = clampedVel.length() - IMPULSE_VECTOR_OFFSET;
+
+  console.log(clampedVel.normalize().multiply(lengthWithOffset).length());
+
+  ball.vel = ball.vel.add(
+    clampedVel.normalize().multiply(lengthWithOffset * IMPUSLE_MULTIPLIER)
+  );
 }
+
+// export function raycast(origin: Vector, direction: Vector, balls: Ball[]) {
+
+// }

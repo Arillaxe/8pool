@@ -6,5 +6,6 @@ export const FRICTION = 1;
 export const IMPUSLE_MULTIPLIER = 10;
 
 export const IMPULSE_VECTOR_OFFSET = 10;
+export const MAX_IMPULSE = 200;
 
 export const OUTLINE_COLOR = "#e1e1e1";
