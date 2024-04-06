@@ -1,3 +1,4 @@
+import { AudioManager, Sounds } from "./audio";
 import { Ball } from "./ball";
 import { WIDTH, HEIGHT, OUTLINE_COLOR, BALL_RADIUS } from "./consts";
 import { applyImpulse, physTick } from "./phys";
@@ -7,6 +8,7 @@ import { Vector } from "./vector";
 
 export class Game {
   private renderer: Renderer;
+  private audioManager: AudioManager;
   private lastTime = Date.now();
   private isRunning = false;
 
@@ -17,39 +19,27 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas.getContext("2d")!);
+    this.audioManager = new AudioManager();
 
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
-
-    const colors = [
-      "magenta",
-      "lime",
-      "yellow",
-      "red",
-      "orange",
-      "blue",
-      "cyan",
-    ];
 
     this.balls.push(
       new Ball(
         new Vector(300, 700),
         new Vector(randomIntInRange(0, 0), randomIntInRange(0, 0)),
-        OUTLINE_COLOR,
-        true
+        OUTLINE_COLOR
       )
     );
 
-    const solidBalls = shuffleArray(
-      Array(7).fill(true).concat(Array(7).fill(false))
+    const colors = shuffleArray(
+      Array(7).fill("red").concat(Array(7).fill("yellow"))
     );
 
     let row = 0;
     let offset = 0;
     let col = 0;
     for (let i = 0; i < 15; i++) {
-      const solid = i === 10 ? true : solidBalls.pop();
-
       if (row === 0 && i === 5) {
         offset += 0.5;
         row++;
@@ -78,12 +68,7 @@ export class Game {
       col++;
 
       this.balls.push(
-        new Ball(
-          pos,
-          new Vector(0, 0),
-          i === 10 ? "black" : colors[randomIntInRange(0, colors.length - 1)],
-          solid
-        )
+        new Ball(pos, new Vector(0, 0), i === 10 ? "black" : colors.pop())
       );
     }
   }
@@ -93,7 +78,7 @@ export class Game {
     const deltaTime = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
 
-    physTick(deltaTime, this.balls);
+    physTick(deltaTime, this.balls, this.audioManager);
 
     this.renderer.render(this.balls);
 
@@ -114,6 +99,8 @@ export class Game {
     this.isRunning = true;
 
     this.tick();
+
+    this.audioManager.init();
   }
 
   stop() {
@@ -132,6 +119,7 @@ export class Game {
   }
 
   mouseEndCallback(x: number, y: number) {
+    this.audioManager.play(Sounds.Strike);
     this.mouseDown = false;
     applyImpulse(
       this.balls[0],

@@ -33,22 +33,6 @@ export class Renderer {
       this.ctx.beginPath();
       this.ctx.arc(ball.pos.x, ball.pos.y, BALL_RADIUS, 0, 2 * Math.PI);
       this.ctx.fill();
-
-      if (!ball.solid) {
-        this.ctx.save();
-        this.ctx.beginPath();
-        this.ctx.arc(
-          ball.pos.x,
-          ball.pos.y,
-          (BALL_RADIUS / 4) * 2.5,
-          0,
-          2 * Math.PI
-        );
-        this.ctx.closePath();
-        this.ctx.clip();
-        this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        this.ctx.restore();
-      }
     }
   }
 

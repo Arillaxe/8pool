@@ -1,3 +1,4 @@
+import { AudioManager, Sounds } from "./audio";
 import { Ball } from "./ball";
 import {
   BALL_RADIUS,
@@ -12,7 +13,11 @@ import {
 import { clamp, clampVectorByLength } from "./utils";
 import { Vector } from "./vector";
 
-export function physTick(deltaTime: number, balls: Ball[]) {
+export function physTick(
+  deltaTime: number,
+  balls: Ball[],
+  audioManager: AudioManager
+) {
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i];
 
@@ -47,12 +52,16 @@ export function physTick(deltaTime: number, balls: Ball[]) {
     for (let j = 0; j < balls.length; j++) {
       if (i === j) continue;
 
-      resolveBallCollision(ball, balls[j]);
+      resolveBallCollision(ball, balls[j], audioManager);
     }
   }
 }
 
-function resolveBallCollision(ball1: Ball, ball2: Ball): void {
+function resolveBallCollision(
+  ball1: Ball,
+  ball2: Ball,
+  audioManager: AudioManager
+): void {
   const distanceVector = ball2.pos.subtract(ball1.pos);
   const distance = distanceVector.length();
 
@@ -72,6 +81,14 @@ function resolveBallCollision(ball1: Ball, ball2: Ball): void {
 
     ball1.vel = ball1.vel.add(velocityChange1);
     ball2.vel = ball2.vel.add(velocityChange2);
+
+    const volume = clamp(
+      Math.abs(impulse) / (MAX_IMPULSE * IMPUSLE_MULTIPLIER),
+      0,
+      1
+    );
+
+    audioManager.play(Sounds.Collide, volume);
   }
 }
 
@@ -81,8 +98,6 @@ export function applyImpulse(ball: Ball, impusle: Vector) {
   const clampedVel = clampVectorByLength(impusle, 0, MAX_IMPULSE);
 
   const lengthWithOffset = clampedVel.length() - IMPULSE_VECTOR_OFFSET;
-
-  console.log(clampedVel.normalize().multiply(lengthWithOffset).length());
 
   ball.vel = ball.vel.add(
     clampedVel.normalize().multiply(lengthWithOffset * IMPUSLE_MULTIPLIER)
