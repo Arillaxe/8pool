@@ -4,6 +4,7 @@ import {
   BALL_RADIUS,
   FRICTION,
   HEIGHT,
+  HOLE_SIDE,
   IMPULSE_VECTOR_OFFSET,
   IMPUSLE_MULTIPLIER,
   MAX_IMPULSE,
@@ -13,11 +14,7 @@ import {
 import { clamp, clampVectorByLength } from "./utils";
 import { Vector } from "./vector";
 
-export function physTick(
-  deltaTime: number,
-  balls: Ball[],
-  audioManager: AudioManager
-) {
+export function physTick(deltaTime: number, balls: Ball[]) {
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i];
 
@@ -26,8 +23,12 @@ export function physTick(
     ball.pos = ball.pos.add(ball.vel.multiply(deltaTime));
 
     if (
-      ball.pos.x - BALL_RADIUS < PADDING ||
-      ball.pos.x + BALL_RADIUS > WIDTH - PADDING
+      (ball.pos.x - BALL_RADIUS < PADDING ||
+        ball.pos.x + BALL_RADIUS > WIDTH - PADDING) &&
+      !(
+        ball.pos.y - BALL_RADIUS > PADDING + HEIGHT / 2 - HOLE_SIDE / 2 &&
+        ball.pos.y + BALL_RADIUS < PADDING + HEIGHT / 2 + HOLE_SIDE / 2
+      )
     ) {
       ball.vel.x *= -1;
       ball.pos.x = clamp(
@@ -52,16 +53,12 @@ export function physTick(
     for (let j = 0; j < balls.length; j++) {
       if (i === j) continue;
 
-      resolveBallCollision(ball, balls[j], audioManager);
+      resolveBallCollision(ball, balls[j]);
     }
   }
 }
 
-function resolveBallCollision(
-  ball1: Ball,
-  ball2: Ball,
-  audioManager: AudioManager
-): void {
+function resolveBallCollision(ball1: Ball, ball2: Ball): void {
   const distanceVector = ball2.pos.subtract(ball1.pos);
   const distance = distanceVector.length();
 
@@ -88,7 +85,7 @@ function resolveBallCollision(
       1
     );
 
-    audioManager.play(Sounds.Collide, volume);
+    AudioManager.play(Sounds.Collide, volume);
   }
 }
 

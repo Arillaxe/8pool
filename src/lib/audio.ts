@@ -4,7 +4,7 @@ export enum Sounds {
   Hole,
 }
 
-export class AudioManager {
+export class _AudioManager {
   sounds: Map<Sounds, HTMLAudioElement> = new Map();
 
   init() {
@@ -29,3 +29,5 @@ export class AudioManager {
     }
   }
 }
+
+export const AudioManager = new _AudioManager();

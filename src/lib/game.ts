@@ -1,6 +1,12 @@
 import { AudioManager, Sounds } from "./audio";
 import { Ball } from "./ball";
-import { WIDTH, HEIGHT, OUTLINE_COLOR, BALL_RADIUS } from "./consts";
+import {
+  WIDTH,
+  HEIGHT,
+  OUTLINE_COLOR,
+  BALL_RADIUS,
+  MAX_DELTA_TIME,
+} from "./consts";
 import { applyImpulse, physTick } from "./phys";
 import { Renderer } from "./renderer";
 import { randomIntInRange, shuffleArray } from "./utils";
@@ -8,7 +14,6 @@ import { Vector } from "./vector";
 
 export class Game {
   private renderer: Renderer;
-  private audioManager: AudioManager;
   private lastTime = Date.now();
   private isRunning = false;
 
@@ -19,7 +24,6 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas.getContext("2d")!);
-    this.audioManager = new AudioManager();
 
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
@@ -75,10 +79,13 @@ export class Game {
 
   private tick() {
     const currentTime = Date.now();
-    const deltaTime = (currentTime - this.lastTime) / 1000;
+    const deltaTime = Math.min(
+      (currentTime - this.lastTime) / 1000,
+      MAX_DELTA_TIME
+    );
     this.lastTime = currentTime;
 
-    physTick(deltaTime, this.balls, this.audioManager);
+    physTick(deltaTime, this.balls);
 
     this.renderer.render(this.balls);
 
@@ -100,7 +107,7 @@ export class Game {
 
     this.tick();
 
-    this.audioManager.init();
+    AudioManager.init();
   }
 
   stop() {
@@ -119,7 +126,7 @@ export class Game {
   }
 
   mouseEndCallback(x: number, y: number) {
-    this.audioManager.play(Sounds.Strike);
+    AudioManager.play(Sounds.Strike);
     this.mouseDown = false;
     applyImpulse(
       this.balls[0],
